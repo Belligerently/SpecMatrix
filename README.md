@@ -27,7 +27,7 @@ To install and run the app, follow these steps based on your role:
 3. Build and run the project directly through Xcode.
 
 ### For Normal Users:
-1. Download the IPA file from the release section of this repository.
+1. Download the IPA file from the [release section](https://github.com/Belligerently/SpecMatrix/releases) of this repository.
 2. Install the IPA file using a sideloading app such as [SideStore](https://sidestore.io) or [AltStore](https://altstore.io), which allow sideloading of up to 3 apps.
 
    Alternatively, you can use a certificate (.p12 and .mobileprovision) from an Apple Developer account, [KravaSign](https://kravasign.com), or another certificate-providing service. Certificates are required for sideloading because Apple restricts the installation of apps outside the App Store for security reasons. These certificates verify the app's authenticity and allow it to be installed on your device. After obtaining the certificate, you can use an app like [Feather Sign](https://github.com/khcrysalis/Feather) to sign and install the app.
@@ -50,10 +50,10 @@ Currently, the app is designed to work only on iPhones. Support for other device
 - Compiled assets catalog (`Assets.car`) for optimized resource management.
 
 ## License
-This project is licensed under the MIT License. Ensure the LICENSE file is included in the repository to provide clarity and accessibility for contributors and users.
+This project is licensed under the MIT License.
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or create an issue to discuss your idea.
 
 ## Contact
-For any inquiries or support, please contact [your_email@example.com].
+For any inquiries or support, please contact [spec.matrix.app@gmail.com].
