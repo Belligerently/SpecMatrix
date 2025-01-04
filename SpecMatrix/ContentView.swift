@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  SpecMatrix
 //
-//  Created by Zachary on 2025-01-02.
+//  Created by Zachary Aflalo on 2025-01-02.
 //
 
 import SwiftUI
@@ -1330,7 +1330,7 @@ struct ContentView: View {
                 VStack(spacing: 20) {
                     // Header
                     Image(systemName: "cpu")
-                        .imageScale(.large)
+                .imageScale(.large)
                         .font(.system(size: 60))
                         .foregroundStyle(.blue)
                     
@@ -1374,8 +1374,8 @@ struct ContentView: View {
                     }
                     
                     Spacer()
-                }
-                .padding()
+        }
+        .padding()
                 .onAppear {
                     print("DEBUG - ContentView appeared")
                     print("DEBUG - Current device model:", getDetailedDeviceModel())
@@ -1600,6 +1600,40 @@ struct SettingsView: View {
                             Image(systemName: "eye.slash")
                             Text("Hide All")
                                 .foregroundColor(.red)
+                        }
+                    }
+                }
+                
+                Section {
+                    HStack {
+                        Text("Created by:")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("Zachary Aflalo")
+                            .fontWeight(.medium)
+                    }
+                    
+                    Link(destination: URL(string: "https://github.com/Belligerently/SpecMatrix")!) {
+                        HStack {
+                            Image(systemName: "link")
+                                .foregroundColor(.blue)
+                            Text("GitHub Repository")
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    
+                    Link(destination: URL(string: "mailto:spec.matrix.app@gmail.com")!) {
+                        HStack {
+                            Image(systemName: "envelope")
+                                .foregroundColor(.blue)
+                            Text("Contact")
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Text("spec.matrix.app@gmail.com")
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
