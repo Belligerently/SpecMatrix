@@ -1726,6 +1726,18 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    
+                    Link(destination: URL(string: "https://github.com/Belligerently/SpecMatrix/blob/main/LICENSE")!) {
+                        HStack {
+                            Image(systemName: "doc.text")
+                                .foregroundColor(.blue)
+                            Text("Licensed under MIT")
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .foregroundColor(.blue)
+                        }
+                    }
                 }
             }
             .navigationTitle("Settings")
