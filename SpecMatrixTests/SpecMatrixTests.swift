@@ -2,7 +2,7 @@
 //  SpecMatrixTests.swift
 //  SpecMatrixTests
 //
-//  Created by Zachary on 2025-01-02.
+//  Created by Zachary Aflalo on 2025-01-02.
 //
 
 import Testing
