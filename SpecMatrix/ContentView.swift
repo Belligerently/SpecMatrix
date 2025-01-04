@@ -191,18 +191,11 @@ struct BatteryInfo {
     }
     
     static func getCurrentBatteryInfo() -> BatteryInfo {
-        UIDevice.current.isBatteryMonitoringEnabled = true  // Enable first
-        guard UIDevice.current.isBatteryMonitoringEnabled else {
-            print("DEBUG - Battery monitoring not enabled")
-            return BatteryInfo(level: -1, state: .unknown, health: -1)
-        }
-        
-        let level = UIDevice.current.batteryLevel
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let level = Float(exactly: UIDevice.current.batteryLevel) ?? -1.0
         let state = UIDevice.current.batteryState
         
-        // Handle invalid battery level
         if level < 0 {
-            print("DEBUG - Invalid battery level")
             return BatteryInfo(level: 1.0, state: state, health: -1)
         }
         
@@ -369,6 +362,7 @@ struct CodableAppStorage<T: Codable> {
 
 struct BatteryInfoView: View {
     let batteryInfo: BatteryInfo
+    @State private var showingSettingsGuide = false
     
     var body: some View {
         GroupBox {
@@ -387,18 +381,31 @@ struct BatteryInfoView: View {
                     InfoRow(label: "Status", value: batteryInfo.stateDescription)
                     InfoRow(label: "Level", value: "\(Int(batteryInfo.level * 100))%")
                     Button(action: {
-                        if let url = URL(string: UIApplication.openSettingsURLString + "&path=BATTERY_HEALTH") {
-                            UIApplication.shared.open(url)
-                        }
+                        showingSettingsGuide = true
                     }) {
                         InfoRow(label: "Health", value: batteryInfo.healthDescription)
                             .foregroundColor(.blue)
                     }
+                    
+                    Text("Note: Battery level readings are approximate")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 5)
                 }
             }
             .padding(.horizontal, 5)
         }
         .padding(.horizontal)
+        .alert("Battery Health", isPresented: $showingSettingsGuide) {
+            Button("Open Settings") {
+                if let url = URL(string: "App-prefs:") {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("To view battery health:\n1. Open Settings\n2. Tap Battery\n3. Tap Battery Health")
+        }
     }
 }
 
@@ -462,8 +469,7 @@ struct SystemInfoView: View {
                 
                 VStack(alignment: .leading, spacing: 10) {
                     InfoRow(label: "Model", value: deviceModel)
-                    Text(iOSInfo)
-                        .font(.subheadline)
+                    InfoRow(label: "iOS", value: iOSInfo)
                 }
             }
             .padding(.horizontal, 5)
@@ -487,8 +493,14 @@ struct CPUInfoView: View {
                 
                 Divider()
                 
-                Text(processorInfo)
-                    .font(.subheadline)
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Chip", value: "A17 Pro")
+                    InfoRow(label: "CPU Cores", value: "6-core")
+                    InfoRow(label: "Performance Cores", value: "2")
+                    InfoRow(label: "Efficiency Cores", value: "4")
+                    InfoRow(label: "GPU Cores", value: "6-core")
+                    InfoRow(label: "Neural Engine", value: "16-core")
+                }
             }
             .padding(.horizontal, 5)
         }
@@ -503,7 +515,7 @@ struct GPUInfoView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 15) {
                 HStack {
-                    Image(systemName: "gpu")
+                    Image(systemName: "square.grid.3x3.square")
                         .font(.title2)
                     Text("GPU Information")
                         .font(.headline)
@@ -838,6 +850,7 @@ struct ScreenInfo {
 // Add ScreenInfoView
 struct ScreenInfoView: View {
     let screenInfo: ScreenInfo
+    @StateObject private var brightnessMonitor = BrightnessMonitor()
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -866,7 +879,7 @@ struct ScreenInfoView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             Spacer()
-                            Text("\(Int(screenInfo.brightness * 100))%")
+                            Text("\(Int(brightnessMonitor.brightness * 100))%")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                         }
@@ -880,7 +893,7 @@ struct ScreenInfoView: View {
                                 
                                 Rectangle()
                                     .fill(Color.blue)
-                                    .frame(width: geometry.size.width * CGFloat(screenInfo.brightness), height: 8)
+                                    .frame(width: geometry.size.width * brightnessMonitor.brightness, height: 8)
                                     .cornerRadius(4)
                             }
                         }
@@ -1123,6 +1136,134 @@ class MemoryMonitor: ObservableObject {
     }
 }
 
+struct ProcessorInfo {
+    let chip: String
+    let cpuCores: String
+    let performanceCores: String
+    let efficiencyCores: String
+    let gpuCores: String
+    let neuralEngine: String
+}
+
+// Update the processor info property
+let processorInfo: ProcessorInfo = {
+    let identifier = UIDevice.modelIdentifier()
+    switch identifier {
+    case "iPhone17,1", "iPhone17,2": // iPhone 16 Pro, Pro Max
+        return ProcessorInfo(
+            chip: "A18 Pro",
+            cpuCores: "6-core",
+            performanceCores: "2",
+            efficiencyCores: "4",
+            gpuCores: "6-core",
+            neuralEngine: "18-core"
+        )
+    case "iPhone17,3", "iPhone17,4": // iPhone 16, 16 Plus
+        return ProcessorInfo(
+            chip: "A18 Bionic",
+            cpuCores: "6-core",
+            performanceCores: "2",
+            efficiencyCores: "4",
+            gpuCores: "5-core",
+            neuralEngine: "16-core"
+        )
+    case "iPhone16,1", "iPhone16,3", "iPhone16,4": // iPhone 15 Pro models
+        return ProcessorInfo(
+            chip: "A17 Pro",
+            cpuCores: "6-core",
+            performanceCores: "2",
+            efficiencyCores: "4",
+            gpuCores: "6-core",
+            neuralEngine: "16-core"
+        )
+    default:
+        return ProcessorInfo(
+            chip: "Apple Silicon",
+            cpuCores: "6-core",
+            performanceCores: "2",
+            efficiencyCores: "4",
+            gpuCores: "5-core",
+            neuralEngine: "16-core"
+        )
+    }
+}()
+
+// Add BrightnessMonitor class
+class BrightnessMonitor: ObservableObject {
+    @Published var brightness: CGFloat = UIScreen.main.brightness
+    private var observer: NSObjectProtocol?
+    
+    init() {
+        // Observe screen brightness changes
+        observer = NotificationCenter.default.addObserver(
+            forName: UIScreen.brightnessDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.brightness = UIScreen.main.brightness
+        }
+    }
+    
+    deinit {
+        if let observer = observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+}
+
+// Add BatteryMonitor class
+class BatteryMonitor: ObservableObject {
+    @Published private(set) var batteryInfo: BatteryInfo
+    private var levelObserver: NSObjectProtocol?
+    private var stateObserver: NSObjectProtocol?
+    
+    init() {
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        self.batteryInfo = BatteryInfo(
+            level: UIDevice.current.batteryLevel,
+            state: UIDevice.current.batteryState,
+            health: -1
+        )
+        startMonitoring()
+    }
+    
+    deinit {
+        stopMonitoring()
+    }
+    
+    private func startMonitoring() {
+        levelObserver = NotificationCenter.default.addObserver(
+            forName: UIDevice.batteryLevelDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            let level = UIDevice.current.batteryLevel
+            let state = UIDevice.current.batteryState
+            self?.batteryInfo = BatteryInfo(level: level, state: state, health: -1)
+        }
+        
+        stateObserver = NotificationCenter.default.addObserver(
+            forName: UIDevice.batteryStateDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            let level = UIDevice.current.batteryLevel
+            let state = UIDevice.current.batteryState
+            self?.batteryInfo = BatteryInfo(level: level, state: state, health: -1)
+        }
+    }
+    
+    private func stopMonitoring() {
+        if let levelObserver = levelObserver {
+            NotificationCenter.default.removeObserver(levelObserver)
+        }
+        if let stateObserver = stateObserver {
+            NotificationCenter.default.removeObserver(stateObserver)
+        }
+        UIDevice.current.isBatteryMonitoringEnabled = false
+    }
+}
+
 struct ContentView: View {
     @State private var selectedTheme: AppTheme = .system
     @State private var selectedTab = 0
@@ -1228,12 +1369,7 @@ struct ContentView: View {
     // Add iOS version info
     let iOSInfo: String = {
         let systemVersion = UIDevice.current.systemVersion
-        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
-        
-        return """
-            iOS Version: \(systemVersion)
-            Build: \(buildNumber)
-            """
+        return systemVersion
     }()
     
     // Add screen info property with proper initialization
@@ -1618,40 +1754,6 @@ struct SettingsView: View {
         settings.showNetwork = false
         settings.showDisplay = false
         settings.showCamera = false
-    }
-}
-
-// Add BatteryMonitor class
-class BatteryMonitor: ObservableObject {
-    @Published private(set) var batteryInfo: BatteryInfo
-    private var timer: Timer?
-    
-    init() {
-        self.batteryInfo = BatteryInfo.getCurrentBatteryInfo()
-        startMonitoring()
-    }
-    
-    deinit {
-        stopMonitoring()
-    }
-    
-    private func startMonitoring() {
-        UIDevice.current.isBatteryMonitoringEnabled = true
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.updateBatteryInfo()
-        }
-    }
-    
-    private func stopMonitoring() {
-        timer?.invalidate()
-        timer = nil
-        UIDevice.current.isBatteryMonitoringEnabled = false
-    }
-    
-    private func updateBatteryInfo() {
-        DispatchQueue.main.async { [weak self] in
-            self?.batteryInfo = BatteryInfo.getCurrentBatteryInfo()
-        }
     }
 }
 
