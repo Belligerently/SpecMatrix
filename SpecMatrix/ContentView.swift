@@ -161,7 +161,7 @@ struct BatteryInfo {
     }
     
     var healthDescription: String {
-        return "Battery Health: View in Settings"
+        return "View in Settings"
     }
     
     var stateIcon: String {
@@ -371,54 +371,34 @@ struct BatteryInfoView: View {
     let batteryInfo: BatteryInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Battery Status")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 12) {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
                     Image(systemName: batteryInfo.stateIcon)
-                        .foregroundStyle(batteryInfo.stateColor)
-                        .font(.system(size: 24))
-                    VStack(alignment: .leading) {
-                        Text("\(Int(batteryInfo.level * 100))% - \(batteryInfo.stateDescription)")
-                            .foregroundStyle(batteryInfo.stateColor)
-                            .font(.system(.body, weight: .medium))
-                    }
+                        .font(.title2)
+                        .foregroundColor(batteryInfo.stateColor)
+                    Text("Battery Status")
+                        .font(.headline)
                 }
                 
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 10)
-                            .cornerRadius(5)
-                        
-                        Rectangle()
-                            .fill(batteryInfo.stateColor)
-                            .frame(width: geometry.size.width * CGFloat(batteryInfo.level), height: 10)
-                            .cornerRadius(5)
-                    }
-                }
-                .frame(height: 10)
+                Divider()
                 
-                Button(action: {
-                    if let url = URL(string: "App-Prefs:root=BATTERY_USAGE") {
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Status", value: batteryInfo.stateDescription)
+                    InfoRow(label: "Level", value: "\(Int(batteryInfo.level * 100))%")
+                    Button(action: {
+                        if let url = URL(string: UIApplication.openSettingsURLString + "&path=BATTERY_HEALTH") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        InfoRow(label: "Health", value: batteryInfo.healthDescription)
+                            .foregroundColor(.blue)
                     }
-                }) {
-                    Text(batteryInfo.healthDescription)
-                        .font(.footnote)
-                        .foregroundColor(.blue)
                 }
             }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
@@ -469,23 +449,26 @@ struct SystemInfoView: View {
     let deviceModel: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("System Information")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Model: \(deviceModel)")
-                    .font(.system(.body))
-                Text(iOSInfo)
-                    .font(.system(.body))
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: "iphone")
+                        .font(.title2)
+                    Text("System Information")
+                        .font(.headline)
+                }
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Model", value: deviceModel)
+                    Text(iOSInfo)
+                        .font(.subheadline)
+                }
             }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
@@ -493,17 +476,23 @@ struct CPUInfoView: View {
     let processorInfo: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("CPU Information")
-                .font(.headline)
-            Text(processorInfo)
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: "cpu")
+                        .font(.title2)
+                    Text("CPU Information")
+                        .font(.headline)
+                }
+                
+                Divider()
+                
+                Text(processorInfo)
+                    .font(.subheadline)
+            }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
@@ -511,38 +500,26 @@ struct GPUInfoView: View {
     let gpuInfo: GPUInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("GPU Information")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Graphics: \(gpuInfo.name)")
-                Text("GPU Cores: \(gpuInfo.cores)")
-                Text("Metal Support: \(gpuInfo.metalSupported ? "Yes" : "No")")
-                Text("Metal Version: \(gpuInfo.metalVersion)")
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: "gpu")
+                        .font(.title2)
+                    Text("GPU Information")
+                        .font(.headline)
+                }
                 
-                HStack(spacing: 8) {
-                    ForEach(0..<gpuInfo.cores, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.blue)
-                            .frame(height: 6)
-                    }
-                    if gpuInfo.cores > 0 {
-                        ForEach(0..<(6-gpuInfo.cores), id: \.self) { _ in
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 6)
-                        }
-                    }
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Name", value: gpuInfo.name)
+                    InfoRow(label: "Cores", value: "\(gpuInfo.cores)")
+                    InfoRow(label: "Metal Support", value: gpuInfo.metalSupported ? "Yes" : "No")
                 }
             }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
@@ -550,37 +527,26 @@ struct MemoryInfoView: View {
     let memoryInfo: MemoryInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Memory Information")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Total RAM: \(memoryInfo.formattedTotal)")
-                Text("Used RAM: \(memoryInfo.formattedUsed)")
-                Text("Usage: \(String(format: "%.1f%%", memoryInfo.usagePercentage))")
-                
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 8)
-                            .cornerRadius(4)
-                        
-                        Rectangle()
-                            .fill(memoryInfo.usagePercentage > 80 ? Color.red : Color.blue)
-                            .frame(width: geometry.size.width * CGFloat(memoryInfo.usagePercentage / 100), height: 8)
-                            .cornerRadius(4)
-                    }
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: "memorychip")
+                        .font(.title2)
+                    Text("Memory Information")
+                        .font(.headline)
                 }
-                .frame(height: 8)
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Total RAM", value: memoryInfo.formattedTotal)
+                    InfoRow(label: "Used RAM", value: memoryInfo.formattedUsed)
+                    InfoRow(label: "Usage", value: String(format: "%.1f%%", memoryInfo.usagePercentage))
+                }
             }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
@@ -588,39 +554,27 @@ struct StorageInfoView: View {
     let storageInfo: StorageInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Storage Information")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Total Storage: \(storageInfo.formattedTotal)")
-                Text("Used Storage: \(storageInfo.formattedUsed)")
-                Text("Available: \(storageInfo.formattedFree)")
-                Text("Usage: \(String(format: "%.1f%%", storageInfo.usagePercentage))")
-                
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 8)
-                            .cornerRadius(4)
-                        
-                        Rectangle()
-                            .fill(storageInfo.usagePercentage > 90 ? Color.red : 
-                                  storageInfo.usagePercentage > 75 ? Color.orange : Color.blue)
-                            .frame(width: geometry.size.width * CGFloat(storageInfo.usagePercentage / 100), height: 8)
-                            .cornerRadius(4)
-                    }
+        GroupBox {
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: "internaldrive")
+                        .font(.title2)
+                    Text("Storage Information")
+                        .font(.headline)
                 }
-                .frame(height: 8)
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    InfoRow(label: "Total Storage", value: storageInfo.formattedTotal)
+                    InfoRow(label: "Used Storage", value: storageInfo.formattedUsed)
+                    InfoRow(label: "Available", value: storageInfo.formattedFree)
+                    InfoRow(label: "Usage", value: String(format: "%.1f%%", storageInfo.usagePercentage))
+                }
             }
+            .padding(.horizontal, 5)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .padding(.horizontal)
     }
 }
 
