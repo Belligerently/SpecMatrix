@@ -27,7 +27,11 @@ To install and run the app, follow these steps based on your role:
 3. Build and run the project directly through Xcode.
 
 ### For Normal Users:
-1. Download the IPA file from the [release section](https://github.com/Belligerently/SpecMatrix/releases) of this repository.
+1. Download on the App Store: [SpecMatrix](https://apps.apple.com/us/app/specmatrix/id6740110428)
+
+OR
+   
+1. Download the IPA file from the [release section](https://github.com/Belligerently/SpecMatrix/releases) of this repository (most up to date).
 2. Install the IPA file using a sideloading app such as [SideStore](https://sidestore.io) or [AltStore](https://altstore.io), which allow sideloading of up to 3 apps.
 
    Alternatively, you can use a certificate (.p12 and .mobileprovision) from an Apple Developer account, [KravaSign](https://kravasign.com), or another certificate-providing service. Certificates are required for sideloading because Apple restricts the installation of apps outside the App Store for security reasons. These certificates verify the app's authenticity and allow it to be installed on your device. After obtaining the certificate, you can use an app like [Feather Sign](https://github.com/khcrysalis/Feather) to sign and install the app.
