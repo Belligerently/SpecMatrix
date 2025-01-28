@@ -60,4 +60,4 @@ This project is licensed under the MIT License.
 Contributions are welcome! Please submit a pull request or create an issue to discuss your idea.
 
 ## Contact
-For any inquiries or support, please contact [spec.matrix.app@gmail.com].
+For any inquiries or support, please contact [spec.matrix.app@gmail.com] or create an issue and we will assist you!
